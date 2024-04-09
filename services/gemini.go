@@ -50,8 +50,14 @@ func (g *GenAIClient) GenerateContent(prompt, modelName string) (string, error) 
 		return "", fmt.Errorf("error generating content: %w", err)
 	}
 
-	fmt.Printf("Gemini Response Structure: %#v\n", resp)
-	return "Successfully succeeded", nil // Return the generated text
+	for _, part := range resp.Candidates[0].Content.Parts {
+		if v, ok := part.(genai.Text); ok {
+			fmt.Printf("Text: %s\n", v)
+			return string(v), nil
+		}
+	}
+
+	return "", fmt.Errorf("failed to extract text from response")
 }
 
 // Close shuts down the GenAIClient's underlying client connection
