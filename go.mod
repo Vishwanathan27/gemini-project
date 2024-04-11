@@ -2,6 +2,8 @@ module github.com/Vishwanathan27/gemini-project
 
 go 1.22.2
 
+require github.com/robfig/cron/v3 v3.0.0
+
 require (
 	cloud.google.com/go v0.110.8 // indirect
 	cloud.google.com/go/ai v0.3.0 // indirect
