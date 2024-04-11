@@ -4,59 +4,28 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
 	"time"
+
+	"github.com/Vishwanathan27/gemini-project/services"
 )
 
-// NewsLetter fetches new stories from the Hacker News API and prints them.
+// NewsLetter is called by a cron job to fetch and filter news stories
 func NewsLetter() {
 	fmt.Println("Starting to fetch Hacker News stories at", time.Now())
 
-	// First, get the list of new story IDs.
-	resp, err := http.Get("https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty")
+	newsletterService := services.NewNewsLetterService()
+	filteredStories, err := newsletterService.FetchStories()
 	if err != nil {
-		log.Printf("Error fetching new stories: %v\n", err)
-		return
-	}
-	defer resp.Body.Close()
-
-	var storyIDs []int
-	if err := json.NewDecoder(resp.Body).Decode(&storyIDs); err != nil {
-		log.Printf("Error decoding story IDs: %v\n", err)
+		log.Printf("Error fetching stories: %v", err)
 		return
 	}
 
-	// Limit the number of stories to fetch details for, if necessary.
-	const maxStories = 10 // Fetch details for 10 stories only for example purposes.
-	if len(storyIDs) > maxStories {
-		storyIDs = storyIDs[:maxStories]
-	}
-
-	// Fetch details for each story ID and accumulate the results.
-	var stories []interface{}
-	for _, id := range storyIDs {
-		storyURL := fmt.Sprintf("https://hacker-news.firebaseio.com/v0/item/%d.json?print=pretty", id)
-		resp, err := http.Get(storyURL)
-		if err != nil {
-			log.Printf("Error fetching story details for ID %d: %v\n", id, err)
-			continue
-		}
-		defer resp.Body.Close()
-
-		var storyDetails interface{}
-		if err := json.NewDecoder(resp.Body).Decode(&storyDetails); err != nil {
-			log.Printf("Error decoding story details for ID %d: %v\n", id, err)
-			continue
-		}
-
-		stories = append(stories, storyDetails)
-	}
-
-	// Print out all the story details.
-	storiesJSON, err := json.MarshalIndent(stories, "", "  ")
+	filteredJSON, err := json.MarshalIndent(filteredStories, "", "  ")
 	if err != nil {
-		log.Printf("Error marshalling stories to JSON: %v\n", err)
+		log.Printf("Error marshaling filtered stories: %v", err)
 		return
 	}
-	fmt.Printf("Fetched Stories: %s\n", storiesJSON)
+
+	fmt.Println("Filtered Stories in JSON format:")
+	fmt.Println(string(filteredJSON))
 }
