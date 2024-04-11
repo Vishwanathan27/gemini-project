@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Vishwanathan27/gemini-project/controllers"
+	"github.com/joho/godotenv"
 	"github.com/robfig/cron/v3"
 )
 
@@ -38,6 +39,11 @@ func startCronJobs() {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
 	// Start HTTP server in a separate goroutine to prevent blocking
 	go startServer()
 
