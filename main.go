@@ -25,8 +25,8 @@ func startCronJobs() {
 	// Create a new cron manager
 	c := cron.New()
 
-	// Add the news_letter function to be called at 11:05 AM.
-	_, err := c.AddFunc("08 11 * * *", controllers.NewsLetter)
+	// Add the news_letter function to be called at 11:00 AM.
+	_, err := c.AddFunc("0 11 * * *", controllers.NewsLetter)
 	if err != nil {
 		log.Fatalf("Error adding cron job: %v", err)
 	}

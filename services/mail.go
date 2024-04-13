@@ -24,8 +24,19 @@ func NewMailSender() *MailSender {
 }
 
 func (ms *MailSender) SendEmail(subject, plainTextContent, htmlContent string) error {
-	from := mail.NewEmail("ViswaNewsLetter", "vish@getnada.com")
-	to := mail.NewEmail("Viswanathan V", "vishhh27@outlook.com")
+	senderEmail := os.Getenv("SENDER_EMAIL")
+	receiverEmail := os.Getenv("RECEIVER_EMAIL")
+	senderName := os.Getenv("SENDER_NAME")
+	receiverName := os.Getenv("RECEIVER_NAME")
+	if senderEmail == "" || receiverEmail == "" || senderName == "" || receiverName == "" {
+		log.Println("One or more required environment variables are missing:")
+		log.Printf("SENDER_EMAIL: %s, RECEIVER_EMAIL: %s, SENDER_NAME: %s, RECEIVER_NAME: %s\n",
+			senderEmail, receiverEmail, senderName, receiverName)
+		return nil
+	}
+
+	from := mail.NewEmail(senderName, senderEmail)
+	to := mail.NewEmail(receiverName, receiverEmail)
 
 	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
 	client := sendgrid.NewSendClient(ms.APIKey)
@@ -36,6 +47,7 @@ func (ms *MailSender) SendEmail(subject, plainTextContent, htmlContent string) e
 	} else {
 		fmt.Println("Email Sent Successfully!")
 		fmt.Println("Status Code: ", response.StatusCode)
+		fmt.Println("Response", response)
 		fmt.Println("Response Body: ", response.Body)
 		fmt.Println("Response Headers: ", response.Headers)
 		return nil
