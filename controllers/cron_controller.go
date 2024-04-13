@@ -28,7 +28,7 @@ func NewsLetter() {
 		titles = append(titles, formattedTitle)
 	}
 
-	prompt := "Summarize these news stories just like how Jarvis would summarize all the updates to tony stark, make it sound conversational, make it a little humourous, this will be sent as an email: " + strings.Join(titles, ", ") + "."
+	prompt := "Provide a good looking html body for a email with the content of these news stories summarized just like how Jarvis would summarize all the updates to tony stark, make it sound conversational, make it a little humourous, this will be sent as an email: " + strings.Join(titles, ", ") + "."
 
 	// Use the existing GenAIClient to generate content (i.e., summarize the prompt)
 	client, err := services.NewGenAIClient()
@@ -48,19 +48,17 @@ func NewsLetter() {
 	fmt.Println(summary)
 
 	if summary != "" {
-		// Send the summary content as an email
-		mailSender := services.NewMailSender() // Make sure NewMailSender is properly defined in your services package.
-		subject := "Your Daily News Summary"
-		to := "vish1nathan27@gmail.com" // The recipient's email address
+		mailSender := services.NewMailSender()
+		subject := "Your Newsletter Subject"
+		plainTextContent := "This is the plain text body of the email."
+		htmlContent := summary
 
-		// Call the SendEmail method to send the summary as an email
-		err := mailSender.SendEmail([]string{to}, subject, summary)
+		err := mailSender.SendEmail(subject, plainTextContent, htmlContent)
 		if err != nil {
 			log.Printf("Failed to send email: %v\n", err)
-			return
+		} else {
+			log.Println("Newsletter emailed successfully.")
 		}
-
-		fmt.Println("Email sent with the summary.")
 	} else {
 		fmt.Println("No summary to send.")
 	}
